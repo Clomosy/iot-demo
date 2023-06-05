@@ -11,7 +11,7 @@ def on_connect(client, userdata, flags, rc):
     global url
     if rc == 0:
         print("Connected with result code " + str(rc))
-        url = "https://clomosy.com/iot/p2.txt"
+        url = "[Text file link that contains clomosy Project GUID]"
         try:
             with urllib.request.urlopen(url) as f:
                 contents = f.read().decode('utf-8')
