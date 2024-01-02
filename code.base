@@ -173,7 +173,7 @@ begin
   SetupMQTT;
   I:=0;
   
-  {                 KIRMIZI START                              }
+  (*                 KIRMIZI START                              *)
   color1Pnl:=MyForm.AddNewProPanel(MyForm,'color1Pnl');
   clComponent.SetupComponent(color1Pnl,'{"Align" : "Top",
   "Width" :'+IntToStr(mainPnlWidth)+', 
@@ -195,10 +195,10 @@ begin
   MyForm.AddNewEvent(color11Lbl,tbeOnClick,'color11LblOnClick');
   
   
-  {               KIRMIZI end                                 }
+  (*               KIRMIZI end                                 *)
   
   
-  {               MAVI START                                }
+  (*               MAVI START                                *)
   color2Pnl:=MyForm.AddNewProPanel(MyForm,'color2Pnl');
   clComponent.SetupComponent(color2Pnl,'{"Align" : "Top",
   "Width" :'+IntToStr(mainPnlWidth)+', 
@@ -218,9 +218,9 @@ begin
   MyForm.AddNewEvent(color2Lbl,tbeOnClick,'color2LblOnClick');
   MyForm.AddNewEvent(color22Lbl,tbeOnClick,'color22LblOnClick');
   
-  {                 MAVI end                                    }
+  (*                 MAVI end                             *)
   
-  {                 YEŞİL START                           }
+  (*                YEŞİL START                           *)
   color3Pnl:=MyForm.AddNewProPanel(MyForm,'color3Pnl');
   clComponent.SetupComponent(color3Pnl,'{"Align" : "Top",
   "Width" :'+IntToStr(mainPnlWidth)+', 
@@ -241,10 +241,10 @@ begin
   MyForm.AddNewEvent(color3Lbl,tbeOnClick,'color3LblOnClick');
   MyForm.AddNewEvent(color33Lbl,tbeOnClick,'color33LblOnClick');
   
-  {                 YEŞİL END                           }
+  (*                 YEŞİL END                           *)
   
   
-  {                 BEYAZ START                         }
+  (*                 BEYAZ START                         *)
   
   color4Pnl:=MyForm.AddNewProPanel(MyForm,'color4Pnl');
   clComponent.SetupComponent(color4Pnl,'{"Align" : "Top",
@@ -265,9 +265,9 @@ begin
   MyForm.AddNewEvent(color4Lbl,tbeOnClick,'color4LblOnClick');
   MyForm.AddNewEvent(color44Lbl,tbeOnClick,'color44LblOnClick');
   
-  {                 BEYAZ START                         }
+  (*                 BEYAZ START                         *)
   
-{                 BEYAZ START                         }
+  (*                 BEYAZ START                         *)
   
   color5Pnl:=MyForm.AddNewProPanel(MyForm,'color5Pnl');
   clComponent.SetupComponent(color5Pnl,'{"Align" : "Top",
@@ -288,10 +288,8 @@ begin
   MyForm.AddNewEvent(color5Lbl,tbeOnClick,'color5LblOnClick');
   MyForm.AddNewEvent(color55Lbl,tbeOnClick,'color55LblOnClick');
   
-  {                 BEYAZ START                         }  
+  (*                 BEYAZ START                         *)  
   
   
   MyForm.Run;
 end;
-
-//TclProButton(MyForm.clFindComponent('BtnGoBack')).Click;
