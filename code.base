@@ -1,32 +1,34 @@
 var 
   MyForm:TCLForm;
-  color1Pnl,
-  color2Pnl,
-  color3Pnl,
-  color4Pnl
-  color5Pnl:TclProPanel;
+  
+  colorRedPnl,
+  colorAquaPnl,
+  colorGreenPnl,
+  colorWhitePnl
+  colorBluePnl:TclProPanel;
   colorPnlTag:integer;
   
-  color1Lbl,
-  color11Lbl,
-  color2Lbl,
-  color22Lbl,
-  color3Lbl,
-  color33Lbl,
-  color4Lbl,
-  color44Lbl,
-  color5Lbl,
-  color55Lbl,
-
+  colorRedLblOn,
+  colorRedLblOff,
+  colorAquaLblOn,
+  colorAquaLblOff,
+  colorGreenLblOn,
+  colorGreenLblOff,
+  colorWhiteLblOn,
+  colorWhiteLblOff,
+  colorBlueLblOn,
+  colorBlueLblOff,
+  
   stateLbl:TclProLabel;
   btnYak:TclProButton;
   mainPnlHeight,
   mainPnlWidth:integer;
   formLayout:TclLayout;
-  
   MyMQTT : TclMQTT;  
-  I:integer;
-  Procedure SetupMQTT;
+  I,s:Integer;
+  
+  
+  procedure SetupMQTT;
   begin
     stateLbl := MyForm.AddNewProLabel(MyForm,'stateLbl','Not Connected');
     clComponent.SetupComponent(stateLbl,'{"Align" : "Top","Width" :20, "Height":20,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
@@ -37,17 +39,24 @@ var
   
    
     MyMQTT.Channel := 'clomosy';//project guid + channel
-    MyMQTT.Connect;//ekran açıldıktan sonra bir buton ile cagirma yontemi de test edilmeli
-   
-    if CLomosy.AppUserProfile = 1 then
-    begin
-      Clomosy.SetClipBoard(Clomosy.Project_GUID);
-      ShowMessage(Clomosy.Project_GUID+' Proje GUID''si kopyalandi');    //ADMIN Olan kisi projenin guid'sini gorur onu da IOT ye yazip baglanmasi lazim
+    try
+    
+      MyMQTT.Connect;//ekran açıldıktan sonra bir buton ile cagirma yontemi de test edilmeli
+      if not CLomosy.PlatformIsMobile then
+      begin
+        Clomosy.SetClipBoard(Clomosy.Project_GUID);
+        ShowMessage('Proje GUID: '+Clomosy.Project_GUID);    //ADMIN Olan kisi projenin guid'sini gorur onu da IOT ye yazip baglanmasi lazim
+      end;
+    
+    except
+    
+      ShowMessage('İnternet bağlantınızı kontrol ediniz...' + #13 + 'Exception Class: '+LastExceptionClassName+' Exception Message: '+LastExceptionMessage);
     end;
   end;
-  Procedure MyMQTTStatusChanged;
+  
+  procedure MyMQTTStatusChanged;
   begin
-    If MyMQTT.Connected Then 
+    if MyMQTT.Connected = true then
     begin
       stateLbl.Text:='Connected';
       clComponent.SetupComponent(stateLbl,'{"Align" : "Top","Width" :20, "Height":20,"TextColor":"#00ff00","TextSize":24,"TextVerticalAlign":"center",
@@ -58,10 +67,15 @@ var
       stateLbl.Text:= 'Not Connected';
       clComponent.SetupComponent(stateLbl,'{"Align" : "Top","Width" :20, "Height":20,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
       "TextHorizontalAlign":"center","TextBold":"yes"}');
+      try
+        MyMQTT.Connect;
+      except
+        ShowMessage('İnternet bağlantınızı kontrol ediniz...' + #13 + 'Exception Class: '+LastExceptionClassName+' Exception Message: '+LastExceptionMessage);
+      end;
     end;
-  End;
+  end;
   
-  Procedure SetupFormLayout;
+  procedure SetupFormLayout;
   begin
     formLayout := MyForm.AddNewLayout(MyForm,'formLayout');
     formLayout.Align:=alContents;
@@ -70,102 +84,29 @@ var
     mainPnlWidth := (formLayout.Width)/5;
   end;
   
-  procedure color1LblOnClick;
+  procedure LedStatus;
   begin
-    If Clomosy.AppUserProfile=1 Then
-    begin
-      If not MyMQTT.Connected then
-        MyMQTT.Connect;
-      MyMQTT.Send('ON5');
+    try
+      if not MyMQTT.Connected then
+      MyMQTT.Connect;
+
+      s:=TclProLabel(MyForm.clSender).clTagInt;
+      case s of
+        1:MyMQTT.Send('ON5');
+        11:MyMQTT.Send('OFF5');
+        2:MyMQTT.Send('ON1');
+        22:MyMQTT.Send('OFF1');
+        3:MyMQTT.Send('ON2');
+        33:MyMQTT.Send('OFF2');
+        4:MyMQTT.Send('ON4');
+        44:MyMQTT.Send('OFF4');
+        5:MyMQTT.Send('ON3');
+        55:MyMQTT.Send('OFF3');
+      end;
+    except
+      ShowMessage('İnternet bağlantınızı kontrol ediniz...' + #13 + 'Exception Class: '+LastExceptionClassName+' Exception Message: '+LastExceptionMessage);
     end;
   end;
-  
-  procedure color11LblOnClick;
-  begin
-    If Clomosy.AppUserProfile=1 Then
-    begin
-      If not MyMQTT.Connected then
-        MyMQTT.Connect;
-      MyMQTT.Send('OFF5');
-    end;
-  end;
-  procedure color2LblOnClick;
-  begin
-    If Clomosy.AppUserProfile=1 Then
-    begin
-      If not MyMQTT.Connected then
-        MyMQTT.Connect;
-      MyMQTT.Send('ON1');
-    end;
-  end;
-  
-  procedure color22LblOnClick;
-  begin
-    If Clomosy.AppUserProfile=1 Then
-    begin
-      If not MyMQTT.Connected then
-        MyMQTT.Connect;
-      MyMQTT.Send('OFF1');
-    end;
-  end;
-  procedure color3LblOnClick;
-  begin
-    If Clomosy.AppUserProfile=1 Then
-    begin
-      If not MyMQTT.Connected then
-        MyMQTT.Connect;
-      MyMQTT.Send('ON2');
-    end;
-  end;
-  
-  procedure color33LblOnClick;
-  begin
-    If Clomosy.AppUserProfile=1 Then
-    begin
-      If not MyMQTT.Connected then
-        MyMQTT.Connect;
-      MyMQTT.Send('OFF2');
-    end;
-  end;
-  procedure color4LblOnClick;
-  begin
-    If Clomosy.AppUserProfile=1 Then
-    begin
-      If not MyMQTT.Connected then
-        MyMQTT.Connect;
-      MyMQTT.Send('ON4');
-    end;
-  end;
-  
-  procedure color44LblOnClick;
-  begin
-    If Clomosy.AppUserProfile=1 Then
-    begin
-      If not MyMQTT.Connected then
-        MyMQTT.Connect;
-      MyMQTT.Send('OFF4');
-    end;
-  end;
-  procedure color5LblOnClick;
-  begin
-    If Clomosy.AppUserProfile=1 Then
-    begin
-      If not MyMQTT.Connected then
-        MyMQTT.Connect;
-      MyMQTT.Send('ON3');
-    end;
-  end;
-  
-  procedure color55LblOnClick;
-  begin
-    If Clomosy.AppUserProfile=1 Then
-    begin
-      If not MyMQTT.Connected then
-        MyMQTT.Connect;
-      MyMQTT.Send('OFF3');
-    end;
-  end;
-  
 begin
   MyForm := TCLForm.Create(Self);
 //  MyForm.SetFormColor('#5e61ff','#01FDF6',clGVertical);
@@ -173,123 +114,133 @@ begin
   SetupMQTT;
   I:=0;
   
-  (*                 KIRMIZI START                              *)
-  color1Pnl:=MyForm.AddNewProPanel(MyForm,'color1Pnl');
-  clComponent.SetupComponent(color1Pnl,'{"Align" : "Top",
+  //               KIRMIZI START                              
+  colorRedPnl:=MyForm.AddNewProPanel(MyForm,'colorRedPnl');
+  clComponent.SetupComponent(colorRedPnl,'{"Align" : "Top",
   "Width" :'+IntToStr(mainPnlWidth)+', 
   "Height":'+IntToStr(mainPnlHeight)+',
   "BackgroundColor":"#ff0000"}');
   
-  color1Lbl := MyForm.AddNewProLabel(color1Pnl,'color1Lbl','On');
-  clComponent.SetupComponent(color1Lbl,'{"Align" : "Right","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
+  colorRedLblOn := MyForm.AddNewProLabel(colorRedPnl,'colorRedLblOn','On');
+  clComponent.SetupComponent(colorRedLblOn,'{"Align" : "Right","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
   "BorderWidth":2,"BackgroundColor":"#ffffff","Width" :110, "Height":150,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
   "TextHorizontalAlign":"center","TextBold":"yes"}');
+  colorRedLblOn.clTagInt := 1;
   
-  
-  color11Lbl := MyForm.AddNewProLabel(color1Pnl,'color11Lbl','Off');
-  clComponent.SetupComponent(color11Lbl,'{"Align" : "MostRight","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
+  colorRedLblOff := MyForm.AddNewProLabel(colorRedPnl,'colorRedLblOff','Off');
+  clComponent.SetupComponent(colorRedLblOff,'{"Align" : "MostRight","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
   "BorderWidth":2,"BackgroundColor":"#ffffff","Width" :110, "Height":150,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
   "TextHorizontalAlign":"center","TextBold":"yes"}');
+  colorRedLblOff.clTagInt := 11;
+  //               KIRMIZI END                                 
   
-  MyForm.AddNewEvent(color1Lbl,tbeOnClick,'color1LblOnClick');
-  MyForm.AddNewEvent(color11Lbl,tbeOnClick,'color11LblOnClick');
-  
-  
-  (*               KIRMIZI end                                 *)
-  
-  
-  (*               MAVI START                                *)
-  color2Pnl:=MyForm.AddNewProPanel(MyForm,'color2Pnl');
-  clComponent.SetupComponent(color2Pnl,'{"Align" : "Top",
+  //               MAVI START                                
+  colorAquaPnl:=MyForm.AddNewProPanel(MyForm,'colorAquaPnl');
+  clComponent.SetupComponent(colorAquaPnl,'{"Align" : "Top",
   "Width" :'+IntToStr(mainPnlWidth)+', 
   "Height":'+IntToStr(mainPnlHeight)+',
   "BackgroundColor":"#00ccff"}');
   
-  color2Lbl := MyForm.AddNewProLabel(color2Pnl,'color2Lbl','On');
-  clComponent.SetupComponent(color2Lbl,'{"Align" : "Right","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
+  colorAquaLblOn := MyForm.AddNewProLabel(colorAquaPnl,'colorAquaLblOn','On');
+  clComponent.SetupComponent(colorAquaLblOn,'{"Align" : "Right","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
   "BorderWidth":2,"BackgroundColor":"#ffffff","Width" :110, "Height":150,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
   "TextHorizontalAlign":"center","TextBold":"yes"}');
+  colorAquaLblOn.clTagInt := 2;
   
-  color22Lbl := MyForm.AddNewProLabel(color2Pnl,'color22Lbl','Off');
-  clComponent.SetupComponent(color22Lbl,'{"Align" : "MostRight","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
+  colorAquaLblOff := MyForm.AddNewProLabel(colorAquaPnl,'colorAquaLblOff','Off');
+  clComponent.SetupComponent(colorAquaLblOff,'{"Align" : "MostRight","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
   "BorderWidth":2,"BackgroundColor":"#ffffff","Width" :110, "Height":150,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
   "TextHorizontalAlign":"center","TextBold":"yes"}');
+  colorAquaLblOff.clTagInt := 22;
+  //                 MAVI END                                    
   
-  MyForm.AddNewEvent(color2Lbl,tbeOnClick,'color2LblOnClick');
-  MyForm.AddNewEvent(color22Lbl,tbeOnClick,'color22LblOnClick');
-  
-  (*                 MAVI end                             *)
-  
-  (*                YEŞİL START                           *)
-  color3Pnl:=MyForm.AddNewProPanel(MyForm,'color3Pnl');
-  clComponent.SetupComponent(color3Pnl,'{"Align" : "Top",
+  //                YEŞİL START                           
+  colorGreenPnl:=MyForm.AddNewProPanel(MyForm,'colorGreenPnl');
+  clComponent.SetupComponent(colorGreenPnl,'{"Align" : "Top",
   "Width" :'+IntToStr(mainPnlWidth)+', 
   "Height":'+IntToStr(mainPnlHeight)+',
   "BackgroundColor":"#33cc33"}');
   
-  
-  color3Lbl := MyForm.AddNewProLabel(color3Pnl,'color3Lbl','On');
-  clComponent.SetupComponent(color3Lbl,'{"Align" : "Right","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
+  colorGreenLblOn := MyForm.AddNewProLabel(colorGreenPnl,'colorGreenLblOn','On');
+  clComponent.SetupComponent(colorGreenLblOn,'{"Align" : "Right","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
   "BorderWidth":2,"BackgroundColor":"#ffffff","Width" :110, "Height":150,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
   "TextHorizontalAlign":"center","TextBold":"yes"}');
+  colorGreenLblOn.clTagInt := 3;
   
-  color33Lbl := MyForm.AddNewProLabel(color3Pnl,'color33Lbl','Off');
-  clComponent.SetupComponent(color33Lbl,'{"Align" : "MostRight","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
+  colorGreenLblOff := MyForm.AddNewProLabel(colorGreenPnl,'colorGreenLblOff','Off');
+  clComponent.SetupComponent(colorGreenLblOff,'{"Align" : "MostRight","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
   "BorderWidth":2,"BackgroundColor":"#ffffff","Width" :110, "Height":150,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
   "TextHorizontalAlign":"center","TextBold":"yes"}');
+  colorGreenLblOff.clTagInt := 33;
+  //                YEŞİL END
   
-  MyForm.AddNewEvent(color3Lbl,tbeOnClick,'color3LblOnClick');
-  MyForm.AddNewEvent(color33Lbl,tbeOnClick,'color33LblOnClick');
-  
-  (*                 YEŞİL END                           *)
-  
-  
-  (*                 BEYAZ START                         *)
-  
-  color4Pnl:=MyForm.AddNewProPanel(MyForm,'color4Pnl');
-  clComponent.SetupComponent(color4Pnl,'{"Align" : "Top",
+  //                BEYAZ START
+  colorWhitePnl:=MyForm.AddNewProPanel(MyForm,'colorWhitePnl');
+  clComponent.SetupComponent(colorWhitePnl,'{"Align" : "Top",
   "Width" :'+IntToStr(mainPnlWidth)+', 
   "Height":'+IntToStr(mainPnlHeight)+',
   "BackgroundColor":"#FFFFFF"}');
   
-  color4Lbl := MyForm.AddNewProLabel(color4Pnl,'color4Lbl','On');
-  clComponent.SetupComponent(color4Lbl,'{"Align" : "Right","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
+  colorWhiteLblOn := MyForm.AddNewProLabel(colorWhitePnl,'colorWhiteLblOn','On');
+  clComponent.SetupComponent(colorWhiteLblOn,'{"Align" : "Right","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
   "BorderWidth":2,"BackgroundColor":"#ffffff","Width" :110, "Height":150,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
   "TextHorizontalAlign":"center","TextBold":"yes"}');
+  colorWhiteLblOn.clTagInt := 4;
   
-  color44Lbl := MyForm.AddNewProLabel(color4Pnl,'color44Lbl','Off');
-  clComponent.SetupComponent(color44Lbl,'{"Align" : "MostRight","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
+  colorWhiteLblOff := MyForm.AddNewProLabel(colorWhitePnl,'colorWhiteLblOff','Off');
+  clComponent.SetupComponent(colorWhiteLblOff,'{"Align" : "MostRight","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"#000000",
   "BorderWidth":2,"BackgroundColor":"#ffffff","Width" :110, "Height":150,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
   "TextHorizontalAlign":"center","TextBold":"yes"}');
+  colorWhiteLblOff.clTagInt := 44;
+  //              BEYAZ END
   
-  MyForm.AddNewEvent(color4Lbl,tbeOnClick,'color4LblOnClick');
-  MyForm.AddNewEvent(color44Lbl,tbeOnClick,'color44LblOnClick');
   
-  (*                 BEYAZ START                         *)
-  
-  (*                 BEYAZ START                         *)
-  
-  color5Pnl:=MyForm.AddNewProPanel(MyForm,'color5Pnl');
-  clComponent.SetupComponent(color5Pnl,'{"Align" : "Top",
+  //               MAVİ START     
+  colorBluePnl:=MyForm.AddNewProPanel(MyForm,'colorBluePnl');
+  clComponent.SetupComponent(colorBluePnl,'{"Align" : "Top",
   "Width" :'+IntToStr(mainPnlWidth)+', 
   "Height":'+IntToStr(mainPnlHeight)+',
   "BackgroundColor":"#ffff00"}');
   
-  color5Lbl := MyForm.AddNewProLabel(color5Pnl,'color5Lbl','On');
-  clComponent.SetupComponent(color5Lbl,'{"Align" : "Right","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"000000",
+  colorBlueLblOn := MyForm.AddNewProLabel(colorBluePnl,'colorBlueLblOn','On');
+  clComponent.SetupComponent(colorBlueLblOn,'{"Align" : "Right","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"000000",
   "BorderWidth":2,"BackgroundColor":"#ffffff","Width" :110, "Height":150,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
   "TextHorizontalAlign":"center","TextBold":"yes"}');
+  colorBlueLblOn.clTagInt := 5;
   
-  color55Lbl := MyForm.AddNewProLabel(color5Pnl,'color55Lbl','Off');
-  clComponent.SetupComponent(color55Lbl,'{"Align" : "MostRight","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"000000",
+  colorBlueLblOff := MyForm.AddNewProLabel(colorBluePnl,'colorBlueLblOff','Off');
+  clComponent.SetupComponent(colorBlueLblOff,'{"Align" : "MostRight","MarginTop":70,"RoundHeight":10,"RoundWidth":10,"BorderColor":"000000",
   "BorderWidth":2,"BackgroundColor":"#ffffff","Width" :110, "Height":150,"TextColor":"#ff0000","TextSize":24,"TextVerticalAlign":"center",
   "TextHorizontalAlign":"center","TextBold":"yes"}');
+  colorBlueLblOff.clTagInt := 55;
+//                MAVİ END
+
+
+  if Clomosy.AppUserProfile = 1 then
+  begin
+    ShowMessage('Ledleri kontrol etme yetkisi verildi.');
+    
+    MyForm.AddNewEvent(colorRedLblOn,tbeOnClick,'LedStatus');
+    MyForm.AddNewEvent(colorRedLblOff,tbeOnClick,'LedStatus');
   
-  MyForm.AddNewEvent(color5Lbl,tbeOnClick,'color5LblOnClick');
-  MyForm.AddNewEvent(color55Lbl,tbeOnClick,'color55LblOnClick');
+    MyForm.AddNewEvent(colorAquaLblOn,tbeOnClick,'LedStatus');
+    MyForm.AddNewEvent(colorAquaLblOff,tbeOnClick,'LedStatus');
   
-  (*                 BEYAZ START                         *)  
+    MyForm.AddNewEvent(colorGreenLblOn,tbeOnClick,'LedStatus');
+    MyForm.AddNewEvent(colorGreenLblOff,tbeOnClick,'LedStatus');
   
+    MyForm.AddNewEvent(colorWhiteLblOn,tbeOnClick,'LedStatus');
+    MyForm.AddNewEvent(colorWhiteLblOff,tbeOnClick,'LedStatus');
   
+    MyForm.AddNewEvent(colorBlueLblOn,tbeOnClick,'LedStatus');
+    MyForm.AddNewEvent(colorBlueLblOff,tbeOnClick,'LedStatus');
+    
+  end;
+  else
+    ShowMessage('Ledleri kontrol etmek için lütfen yetkili ile iletişime geçiniz.');
+  
+  if Clomosy.PlatformIsMobile then
   MyForm.Run;
+  else
+  MyForm.RunModal;
 end;
